@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .summary {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .orders-container {
+            display: grid;
+            gap: 15px;
+        }
+
+        .order-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .order-card h3 {
+            margin: 0 0 8px;
+        }
+
+        .delete-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            background: darkred;
+        }
+
+        .clear-btn {
+            margin-top: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 10px 15px;
+            background: black;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .clear-btn:hover {
+            background: #333;
+        }
+
+        .no-orders {
+            text-align: center;
+            color: gray;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>📋 Admin Panel</h1>
+
+<div class="summary">
+    Total Orders: <span id="total-orders">0</span> |
+    Total Revenue: ₹<span id="total-revenue">0</span>
+</div>
+
+<div class="orders-container" id="orders-container"></div>
+
+<button class="clear-btn" onclick="clearAllOrders()">Clear All Orders</button>
+
+<script>
+
+function loadOrders() {
+    const container = document.getElementById("orders-container");
+    const totalOrdersEl = document.getElementById("total-orders");
+    const totalRevenueEl = document.getElementById("total-revenue");
+
+    container.innerHTML = "";
+
+    let orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+    totalOrdersEl.innerText = orders.length;
+
+    let totalRevenue = 0;
+
+    if (orders.length === 0) {
+        container.innerHTML = "<p class='no-orders'>No Orders Found</p>";
+        totalRevenueEl.innerText = "0";
+        return;
+    }
+
+    orders.forEach((order, index) => {
+
+        totalRevenue += order.total;
+
+        container.innerHTML += `
+            <div class="order-card">
+                <h3>🧾 ${order.orderID}</h3>
+                <p><strong>Name:</strong> ${order.name}</p>
+                <p><strong>Phone:</strong> ${order.phone}</p>
+                <p><strong>Total:</strong> ₹${order.total}</p>
+                <p><strong>Date:</strong> ${order.date}</p>
+                <button class="delete-btn" onclick="deleteOrder(${index})">
+                    Delete
+                </button>
+            </div>
+        `;
+    });
+
+    totalRevenueEl.innerText = totalRevenue;
+}
+
+function deleteOrder(index) {
+    let orders = JSON.parse(localStorage.getItem("orders")) || [];
+    orders.splice(index, 1);
+    localStorage.setItem("orders", JSON.stringify(orders));
+    loadOrders();
+}
+
+function clearAllOrders() {
+    if (confirm("Delete all orders?")) {
+        localStorage.removeItem("orders");
+        loadOrders();
+    }
+}
+
+loadOrders();
+
+</script>
+
+</body>
+</html>
